@@ -1,0 +1,121 @@
+# Local Azure stand-in stack for Contoso Financial cloud migration
+#
+# Service mapping to Azure primitives:
+#   postgres  → Azure Database for PostgreSQL Flexible Server (UK South)
+#   redis     → Azure Cache for Redis (UK South)
+#   azurite   → Azure Blob Storage (UK South)
+#   webapp    → Azure Container Apps
+#   batch     → Azure Container App Jobs
+
+services:
+
+  # ─── Azure Database for PostgreSQL Flexible Server stand-in ───────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: contoso-azure-postgres
+    environment:
+      POSTGRES_DB: contoso
+      POSTGRES_USER: contoso
+      POSTGRES_PASSWORD: dev-only-local
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./workloads/reporting-db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./workloads/reporting-db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U contoso -d contoso"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Azure Cache for Redis stand-in ──────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: contoso-azure-redis
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Azure Blob Storage stand-in ─────────────────────────────────────────
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    container_name: contoso-azure-storage
+    command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+    volumes:
+      - azurite_data:/data
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "10000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Azure Container Apps stand-in (webapp) ──────────────────────────────
+  webapp:
+    build:
+      context: ./workloads/webapp
+      dockerfile: Dockerfile
+    container_name: contoso-webapp
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: contoso
+      DB_USER: contoso
+      DB_PASSWORD: dev-only-local
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # AUTH_SERVICE_URL intentionally not set — auth stub returns 200 in dev
+      # In Azure: set this to the on-prem auth service URL via VPN (Phase 1)
+      # or Azure AD B2C (Phase 2)
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e",
+        "require('http').get('http://localhost:3000/health', r => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
+
+  # ─── Azure Container App Jobs stand-in (batch) ────────────────────────────
+  batch:
+    build:
+      context: ./workloads/batch
+      dockerfile: Dockerfile
+    container_name: contoso-batch
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: contoso
+      DB_USER: contoso
+      DB_PASSWORD: dev-only-local
+      # FEED_STORAGE_CONNECTION not set in local dev — use FEED_LOCAL_PATH instead
+      FEED_LOCAL_PATH: /feeds
+      REPORT_DATE: "2026-04-27"
+    volumes:
+      - ./workloads/batch/sample_feed.csv:/feeds/20260427_transactions.csv:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - batch  # Run manually: docker compose --profile batch run batch
+
+volumes:
+  postgres_data:
+  azurite_data:

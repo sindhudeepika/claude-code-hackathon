@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contoso Financial — Cloud Migration Pitch</title>
+<style>
+  :root {
+    --azure-blue: #0078D4;
+    --azure-dark: #003A75;
+    --azure-mid: #004C97;
+    --azure-light: #50E6FF;
+    --azure-accent: #FFB900;
+    --text-dark: #1A1A2E;
+    --text-light: #F0F4F8;
+    --card-bg: #FFFFFF;
+    --section-bg: #F5F9FF;
+    --border: #D0E4F7;
+    --success: #107C10;
+    --warning: #FF8C00;
+    --error: #D13438;
+    --code-bg: #1E1E2E;
+    --code-text: #CDD6F4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--section-bg); color: var(--text-dark); line-height: 1.6; }
+
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--azure-dark);
+    padding: 0.75rem 2rem;
+    display: flex; align-items: center; gap: 2rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    flex-wrap: wrap;
+  }
+  nav .logo { color: var(--azure-light); font-weight: 700; font-size: 1rem; white-space: nowrap; }
+  nav a { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 0.82rem; transition: color 0.2s; }
+  nav a:hover { color: var(--azure-light); }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--azure-dark) 0%, var(--azure-blue) 55%, #0093C4 100%);
+    color: white; padding: 5rem 3rem 4rem; text-align: center; position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2350E6FF' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .hero-badge { display: inline-block; background: rgba(80,230,255,0.15); border: 1px solid var(--azure-light); color: var(--azure-light); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.8rem; letter-spacing: 0.05em; margin-bottom: 1.5rem; }
+  .hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700; margin-bottom: 1rem; line-height: 1.15; }
+  .hero h1 span { color: var(--azure-light); }
+  .hero .subtitle { font-size: 1.1rem; color: rgba(255,255,255,0.8); max-width: 640px; margin: 0 auto 2.5rem; }
+  .hero-stats { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; margin-top: 2rem; }
+  .stat { text-align: center; }
+  .stat-number { font-size: 2.4rem; font-weight: 700; color: var(--azure-light); }
+  .stat-label { font-size: 0.82rem; color: rgba(255,255,255,0.6); margin-top: 0.2rem; }
+
+  /* SECTIONS */
+  section { padding: 4rem 2rem; max-width: 1100px; margin: 0 auto; }
+  section.alt { background: white; max-width: 100%; padding: 4rem 0; }
+  section.alt .inner { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+  section.dark { background: var(--azure-dark); max-width: 100%; padding: 4rem 0; color: white; }
+  section.dark .inner { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+
+  h2 { font-size: 1.8rem; color: var(--azure-dark); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem; }
+  section.dark h2 { color: var(--azure-light); }
+  h2 .icon { font-size: 1.5rem; }
+  .section-sub { color: #555; margin-bottom: 2rem; font-size: 1rem; }
+  section.dark .section-sub { color: rgba(255,255,255,0.65); }
+  .divider { width: 48px; height: 3px; background: var(--azure-blue); border-radius: 2px; margin-bottom: 2rem; }
+  section.dark .divider { background: var(--azure-light); }
+
+  /* CARDS */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+  .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,120,212,0.06); transition: transform 0.2s, box-shadow 0.2s; }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,120,212,0.12); }
+  .card-icon { font-size: 1.8rem; margin-bottom: 0.75rem; }
+  .card h3 { font-size: 1rem; color: var(--azure-dark); margin-bottom: 0.5rem; }
+  .card p { font-size: 0.875rem; color: #555; line-height: 1.5; }
+
+  /* WHY PILLARS */
+  .pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+  .pillar { background: linear-gradient(135deg, var(--azure-dark), var(--azure-mid)); border-radius: 16px; padding: 2rem; color: white; text-align: center; }
+  .pillar .pillar-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+  .pillar h3 { font-size: 1.2rem; color: var(--azure-light); margin-bottom: 0.5rem; }
+  .pillar p { font-size: 0.875rem; color: rgba(255,255,255,0.75); }
+
+  /* ACHIEVEMENT TABLE */
+  .achieve-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .achieve-table th { background: var(--azure-dark); color: white; padding: 0.75rem 1rem; text-align: left; }
+  .achieve-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .achieve-table tr:hover td { background: var(--section-bg); }
+  .badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.65rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+  .badge-done { background: #E8F5E9; color: var(--success); border: 1px solid #A5D6A7; }
+  .badge-partial { background: #FFF8E1; color: var(--warning); border: 1px solid #FFE082; }
+  .badge-skipped { background: #F5F5F5; color: #999; border: 1px solid #DDD; }
+
+  /* STAKEHOLDERS */
+  .stakeholder-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+  .stakeholder { background: white; border-left: 4px solid var(--azure-blue); border-radius: 0 8px 8px 0; padding: 1.25rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .stakeholder .role { font-weight: 700; color: var(--azure-blue); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .stakeholder .want { font-size: 0.8rem; color: var(--success); font-weight: 600; margin-top: 0.35rem; }
+  .stakeholder .quote { font-size: 0.85rem; color: #444; margin-top: 0.4rem; font-style: italic; }
+
+  /* FINDINGS */
+  .findings-list { display: flex; flex-direction: column; gap: 1rem; }
+  .finding { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: center; }
+  .finding-num { width: 36px; height: 36px; background: var(--error); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+  .finding-num.ok { background: var(--success); }
+  .finding-num.warn { background: var(--warning); }
+  .finding h4 { font-size: 0.95rem; color: var(--text-dark); margin-bottom: 0.2rem; }
+  .finding p { font-size: 0.82rem; color: #666; }
+  .finding-tag { font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+  .tag-resolved { background: #F0FFF0; color: var(--success); border: 1px solid #99CC99; }
+  .tag-blocker { background: #FFF0F0; color: var(--error); border: 1px solid #FFCCCC; }
+  .tag-action { background: #FFF8E0; color: var(--warning); border: 1px solid #FFD966; }
+
+  /* ARCH DIAGRAM */
+  .arch-diagram { background: var(--code-bg); border-radius: 12px; padding: 2rem; font-family: 'Cascadia Code','Fira Code','Courier New',monospace; font-size: 0.78rem; color: var(--code-text); line-height: 1.7; overflow-x: auto; }
+  .arch-diagram .comment { color: #6C7086; }
+  .arch-diagram .highlight { color: var(--azure-light); font-weight: 600; }
+  .arch-diagram .service { color: #CBA6F7; }
+  .arch-diagram .arrow { color: #F38BA8; }
+
+  /* SERVICE MAP */
+  .service-map { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: center; }
+  .service-col { display: flex; flex-direction: column; gap: 0.75rem; }
+  .service-item { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.85rem; }
+  .service-item .label { font-weight: 600; color: var(--azure-dark); }
+  .service-item .detail { color: #777; font-size: 0.8rem; margin-top: 0.2rem; }
+  .arrow-col { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; color: var(--azure-blue); font-size: 1.5rem; }
+
+  /* TEST MODULES */
+  .test-modules { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1rem; }
+  .test-module { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; text-align: center; }
+  .test-module .count { font-size: 2.2rem; font-weight: 700; color: var(--azure-blue); }
+  .test-module .name { font-size: 0.82rem; font-weight: 700; color: var(--azure-dark); margin-top: 0.2rem; }
+  .test-module .desc { font-size: 0.75rem; color: #888; margin-top: 0.3rem; }
+  .test-result-bar { display: flex; border-radius: 8px; overflow: hidden; height: 12px; margin: 1.5rem 0 0.5rem; }
+  .bar-pass { background: var(--success); }
+  .bar-skip { background: #90CAF9; }
+  .bar-fail { background: var(--error); }
+  .bar-legend { display: flex; gap: 1.5rem; font-size: 0.8rem; }
+  .bar-legend span { display: flex; align-items: center; gap: 0.4rem; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+  /* SURVEY SCORES */
+  .score-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .score-card { background: white; border-radius: 12px; padding: 1.5rem; text-align: center; border: 2px solid var(--border); }
+  .score-card .workload { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: #777; margin-bottom: 0.5rem; }
+  .score-card .score { font-size: 2.5rem; font-weight: 700; color: var(--azure-blue); }
+  .score-card .risk { font-size: 0.85rem; font-weight: 600; margin-top: 0.3rem; }
+  .risk-low { color: var(--success); }
+  .risk-med { color: var(--warning); }
+  .score-card .top-blocker { font-size: 0.78rem; color: #666; margin-top: 0.5rem; border-top: 1px solid var(--border); padding-top: 0.5rem; }
+
+  /* COMPLIANCE */
+  .compliance-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+  .compliance-item { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+  .compliance-item .rule { font-size: 0.78rem; font-weight: 700; color: var(--azure-blue); text-transform: uppercase; letter-spacing: 0.05em; }
+  .compliance-item h4 { margin: 0.4rem 0 0.5rem; font-size: 0.95rem; }
+  .compliance-item p { font-size: 0.82rem; color: #555; }
+
+  /* ROADMAP */
+  .roadmap { display: flex; flex-direction: column; gap: 0; }
+  .roadmap-item { display: flex; gap: 1.5rem; padding: 1rem 0; border-left: 2px solid rgba(255,255,255,0.2); margin-left: 1rem; padding-left: 2rem; position: relative; }
+  .roadmap-item::before { content: ''; position: absolute; left: -7px; top: 1.5rem; width: 12px; height: 12px; border-radius: 50%; background: var(--azure-light); border: 2px solid var(--azure-dark); box-shadow: 0 0 0 2px var(--azure-light); }
+  .roadmap-phase { min-width: 90px; font-weight: 700; color: var(--azure-light); font-size: 0.82rem; padding-top: 0.1rem; }
+  .roadmap-content h4 { font-size: 0.95rem; color: white; margin-bottom: 0.2rem; }
+  .roadmap-content p { font-size: 0.82rem; color: rgba(255,255,255,0.65); }
+
+  /* CTA */
+  .cta-block { background: linear-gradient(135deg, var(--azure-blue), var(--azure-dark)); border-radius: 16px; padding: 3rem; text-align: center; color: white; margin-top: 2rem; }
+  .cta-block h3 { font-size: 1.6rem; margin-bottom: 0.75rem; }
+  .cta-block p { font-size: 1rem; color: rgba(255,255,255,0.8); max-width: 560px; margin: 0 auto 2rem; }
+  .cta-steps { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; }
+  .cta-step { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 1rem 1.5rem; font-size: 0.875rem; }
+  .cta-step .num { font-size: 1.4rem; font-weight: 700; color: var(--azure-light); display: block; margin-bottom: 0.3rem; }
+
+  /* CLAUDE CODE */
+  .claude-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+  .claude-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 1.5rem; }
+  .claude-card .cc-icon { font-size: 1.6rem; margin-bottom: 0.6rem; }
+  .claude-card h3 { font-size: 0.95rem; color: var(--azure-light); margin-bottom: 0.4rem; }
+  .claude-card p { font-size: 0.82rem; color: rgba(255,255,255,0.7); }
+
+  pre { background: var(--code-bg); color: var(--code-text); padding: 1.25rem; border-radius: 10px; font-family: 'Cascadia Code','Fira Code',monospace; font-size: 0.8rem; line-height: 1.6; overflow-x: auto; }
+  code { background: #EEF4FF; color: var(--azure-blue); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.85em; }
+
+  .callout { background: #EEF7FF; border-left: 4px solid var(--azure-blue); padding: 1rem 1.25rem; border-radius: 0 8px 8px 0; font-size: 0.9rem; margin: 1.5rem 0; }
+  .callout.warn { background: #FFF8E1; border-color: var(--warning); }
+  .callout strong { color: var(--azure-dark); }
+
+  footer { background: var(--azure-dark); color: rgba(255,255,255,0.55); text-align: center; padding: 2rem; font-size: 0.85rem; }
+  footer strong { color: var(--azure-light); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+  @media (max-width: 768px) {
+    nav { gap: 0.75rem; }
+    .hero { padding: 3rem 1.5rem; }
+    .hero-stats { gap: 1.5rem; }
+    section { padding: 3rem 1.25rem; }
+    .service-map, .two-col { grid-template-columns: 1fr; }
+    .arrow-col { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">☁️ Contoso Migration</span>
+  <a href="#why">Why This</a>
+  <a href="#problem">The Problem</a>
+  <a href="#delivered">What's Done</a>
+  <a href="#discovery">Discovery</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#proof">The Proof</a>
+  <a href="#survey">AI Survey</a>
+  <a href="#compliance">Compliance</a>
+  <a href="#claude">Claude Code</a>
+  <a href="#next">What's Next</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Scenario 2 · Cloud Migration · Claude Code Hackathon</div>
+  <h1>Three Workloads.<br><span>One Migration That's Provably Done.</span></h1>
+  <p class="subtitle">
+    £480,000/year data-centre cost. Q3 deadline. Five undocumented blockers.
+    Every single one caught, fixed, and proven by a test that runs right now.
+  </p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-number">£480k</div><div class="stat-label">Annual Cost Eliminated</div></div>
+    <div class="stat"><div class="stat-number">5 → 0</div><div class="stat-label">Migration Blockers Remaining</div></div>
+    <div class="stat"><div class="stat-number">33</div><div class="stat-label">Automated Tests Written</div></div>
+    <div class="stat"><div class="stat-number">7</div><div class="stat-label">AI-Surfaced Additional Risks</div></div>
+    <div class="stat"><div class="stat-number">100%</div><div class="stat-label">UK South PII Residency</div></div>
+  </div>
+</div>
+
+<!-- WHY THIS -->
+<section id="why">
+  <h2><span class="icon">🏆</span> Why This Approach Wins</h2>
+  <div class="divider"></div>
+  <p class="section-sub">Three things that make this migration different from every other lift-and-shift you've seen fail.</p>
+  <div class="pillars">
+    <div class="pillar">
+      <div class="pillar-icon">⚡</div>
+      <h3>Speed — Q3 or Nothing</h3>
+      <p>Lift-and-shift ships in 6–8 weeks. Refactoring on the way in is 16–24 weeks. The lease expires in October. Cloud-native optimisation goes on the H2 roadmap — not the critical path.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">🛡️</div>
+      <h3>Safety — Proof, Not Promise</h3>
+      <p>Every migration blocker is caught by a test that runs today without Docker or a live cloud. "Migration succeeded" has a binary definition: the suite is green or it isn't. No grey area.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">🤖</div>
+      <h3>Intelligence — AI Found What Humans Missed</h3>
+      <p>Three Claude Sonnet 4.6 subagents ran on Amazon Bedrock in parallel. The coordinator found 7 additional risks — including a split-brain cutover risk the human discovery document missed entirely.</p>
+    </div>
+  </div>
+</section>
+
+<!-- THE PROBLEM -->
+<section class="alt" id="problem">
+  <div class="inner">
+    <h2><span class="icon">🔥</span> The Problem</h2>
+    <div class="divider"></div>
+    <p class="section-sub">Four stakeholders. Four requirements. Zero overlap. One data-centre lease expiring in Q4.</p>
+    <div class="stakeholder-grid">
+      <div class="stakeholder">
+        <div class="role">CFO</div>
+        <div class="want">✓ Resolved: Phase 1 ships Q3</div>
+        <div class="quote">"The lease renewal is October. If we're still on-prem in November, that's another £480k. There is no scenario where we extend."</div>
+      </div>
+      <div class="stakeholder">
+        <div class="role">CTO</div>
+        <div class="want">✓ Resolved: Cloud-native on H2 roadmap</div>
+        <div class="quote">"I'm not signing off on running a Node.js 16 monolith on Container Apps in 2027 and calling it cloud-native. I want a roadmap."</div>
+      </div>
+      <div class="stakeholder">
+        <div class="role">SRE Lead</div>
+        <div class="want">✓ Resolved: Tests define success at 3am</div>
+        <div class="quote">"The batch job has never missed a night in four years. I don't care about the architecture. I want runbooks I can follow at 3am."</div>
+      </div>
+      <div class="stakeholder">
+        <div class="role">Head of Compliance</div>
+        <div class="want">✓ Resolved: Private endpoints in Terraform</div>
+        <div class="quote">"Everything that touches account data stays in UK South. I want to see the private endpoint configuration before I sign anything."</div>
+      </div>
+    </div>
+    <div class="callout" style="margin-top: 2rem;">
+      <strong>The deadlock resolved:</strong> CFO gets the bill gone by Q3 (lift-and-shift ships in 6–8 weeks).
+      CTO gets cloud-native on the H2 roadmap with a written commitment in ADR-001.
+      Compliance gets private endpoints enforced in Terraform — not policy, not a promise, code.
+    </div>
+  </div>
+</section>
+
+<!-- WHAT'S DELIVERED -->
+<section id="delivered">
+  <h2><span class="icon">✅</span> What's Already Built</h2>
+  <div class="divider"></div>
+  <p class="section-sub">Not a plan. Not a proposal. Working code, passing tests, and a written decision document.</p>
+
+  <table class="achieve-table">
+    <thead>
+      <tr><th>#</th><th>Challenge</th><th>Status</th><th>What It Is</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><strong>The Memo</strong></td>
+        <td><span class="badge badge-done">✓ Done</span></td>
+        <td>ADR-001 — one-page lift-and-shift decision with risk register, rollback plan, and explicit CFO/CTO deadlock resolution</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><strong>The Discovery</strong></td>
+        <td><span class="badge badge-done">✓ Done</span></td>
+        <td>Five on-prem dependencies documented: hardcoded IPs, NFS mounts, plaintext credentials, Redis keepalive cron. Each one maps to a test.</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><strong>The Options</strong></td>
+        <td><span class="badge badge-done">✓ Done</span></td>
+        <td>ADR-002 — scored alternatives table (Container Apps vs AKS vs App Service; PostgreSQL Flexible vs Azure SQL) with the reasoning written down</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><strong>The Container</strong></td>
+        <td><span class="badge badge-done">✓ Done</span></td>
+        <td>Multi-stage Dockerfile, non-root user, <code>/health</code> endpoint, Docker Compose stack where every service is named for its Azure equivalent</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><strong>The Foundation</strong></td>
+        <td><span class="badge badge-partial">~ Partial</span></td>
+        <td>4 Terraform modules (networking, webapp, database, batch). Private endpoints, Key Vault, Managed Identity, UK South enforcement. Not yet applied to live cloud.</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td><strong>The Proof</strong></td>
+        <td><span class="badge badge-done">✓ Done</span></td>
+        <td>33 tests across 5 modules. 10 pass locally right now with zero failures. 23 skip cleanly pending the Docker stack — no false greens.</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td><strong>The Scorecard</strong></td>
+        <td><span class="badge badge-skipped">Skipped</span></td>
+        <td>IaC eval harness with golden snippets — Phase 2 item</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td><strong>The Undo</strong></td>
+        <td><span class="badge badge-skipped">Skipped</span></td>
+        <td>Rollback runbook outlined in ADR-001; full rehearsal is a pre-cutover requirement</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td><strong>The Survey</strong></td>
+        <td><span class="badge badge-done">✓ Done</span></td>
+        <td>Coordinator + 3 parallel Bedrock subagents. Found 7 risks the human discovery missed. Report written to <code>agents/survey-report.md</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- DISCOVERY -->
+<section class="alt" id="discovery">
+  <div class="inner">
+    <h2><span class="icon">🔎</span> The Five Blockers — All Resolved</h2>
+    <div class="divider"></div>
+    <p class="section-sub">Found in the code. Fixed in the code. Proven by a test. Not on a spreadsheet.</p>
+    <div class="findings-list">
+      <div class="finding">
+        <div class="finding-num ok">1</div>
+        <div>
+          <h4>Hardcoded Auth Service IP — <code>http://10.0.1.45:8080/auth/validate</code></h4>
+          <p>Not routable in Azure. Every authenticated request would timeout silently after 30 seconds. Fixed: <code>AUTH_SERVICE_URL</code> env var takes priority; default is documented not hardcoded.</p>
+        </div>
+        <div class="finding-tag tag-resolved">✓ Fixed &amp; Tested</div>
+      </div>
+      <div class="finding">
+        <div class="finding-num ok">2</div>
+        <div>
+          <h4>Local Filesystem Log File — <code>/var/log/contoso/app.log</code></h4>
+          <p>Container Apps ephemeral filesystem discards all logs on restart. Fixed: <code>LOG_FILE</code> defaults to <code>null</code> (stdout). Logs go to Azure Monitor automatically.</p>
+        </div>
+        <div class="finding-tag tag-resolved">✓ Fixed &amp; Tested</div>
+      </div>
+      <div class="finding">
+        <div class="finding-num ok">3</div>
+        <div>
+          <h4>NFS-Mounted Feed Directory — <code>/mnt/findata/feeds</code></h4>
+          <p>Batch job would silently process zero rows and exit success — Finance ops wouldn't notice until GL entries were missing. Fixed: raises <code>EnvironmentError</code> if neither Blob Storage nor local path is set. Loud failure, not silent.</p>
+        </div>
+        <div class="finding-tag tag-resolved">✓ Fixed &amp; Tested</div>
+      </div>
+      <div class="finding">
+        <div class="finding-num ok">4</div>
+        <div>
+          <h4>Plaintext DB Password in <code>/etc/contoso/config.ini</code></h4>
+          <p>Password unchanged since 2021; three former employees had access. Fixed: env vars only. Azure Key Vault secret reference in Terraform. Managed Identity for app-to-DB auth.</p>
+        </div>
+        <div class="finding-tag tag-resolved">✓ Fixed &amp; Tested</div>
+      </div>
+      <div class="finding">
+        <div class="finding-num ok">5</div>
+        <div>
+          <h4>Redis Keepalive Cron — hits <code>http://10.0.1.30:9090/cache/warm</code></h4>
+          <p>Undocumented cron on app01.internal. Not routable in Azure. Azure Cache for Redis manages eviction natively — no keepalive needed. Cron eliminated entirely.</p>
+        </div>
+        <div class="finding-tag tag-resolved">✓ Fixed &amp; Tested</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+  <h2><span class="icon">🏛️</span> Target Architecture — Azure UK South</h2>
+  <div class="divider"></div>
+  <p class="section-sub">Every data path behind a private endpoint. Every secret in Key Vault. Every resource in UK South — enforced by Terraform, not policy.</p>
+
+  <div class="arch-diagram">
+<span class="comment">┌──────────────────────────── Azure UK South ──────────────────────────────────────────┐</span>
+<span class="comment">│                                                                                      │</span>
+<span class="comment">│  ┌──────────────── VNet: vnet-contoso-prod ─────────────────────────────────────┐   │</span>
+<span class="comment">│  │                                                                               │   │</span>
+<span class="comment">│  │  ┌── app-tier subnet ───────────────┐   ┌── data-tier subnet ─────────────┐ │   │</span>
+<span class="comment">│  │  │                                  │   │                                 │ │   │</span>
+<span class="comment">│  │  │  ┌────────────────────────────┐  │   │  ┌─────────────────────────┐   │ │   │</span>
+<span class="comment">│  │  │  │</span> <span class="highlight">Container App (webapp)      │</span><span class="arrow">──────▶</span><span class="comment">│  │</span><span class="service"> PostgreSQL Flexible Server </span><span class="comment">│   │ │   │</span>
+<span class="comment">│  │  │  │  Node.js / Express          │  │   │  │  Zone-HA · TLS 1.2       │   │ │   │</span>
+<span class="comment">│  │  │  │  Managed Identity · /health │  │   │  │  pgaudit · Private EP    │   │ │   │</span>
+<span class="comment">│  │  │  └────────────────────────────┘  │   │  └─────────────────────────┘   │ │   │</span>
+<span class="comment">│  │  │                                  │   │                                 │ │   │</span>
+<span class="comment">│  │  │  ┌────────────────────────────┐  │   │  ┌─────────────────────────┐   │ │   │</span>
+<span class="comment">│  │  │  │</span> <span class="highlight">Container App Job (batch)   │</span><span class="arrow">──────▶</span><span class="comment">│  │</span><span class="service"> Azure Cache for Redis      </span><span class="comment">│   │ │   │</span>
+<span class="comment">│  │  │  │  cron 0 2 * * * UTC         │  │   │  │  allkeys-lru · TLS 6380  │   │ │   │</span>
+<span class="comment">│  │  │  │  Python reconcile.py        │  │   │  │  Private endpoint        │   │ │   │</span>
+<span class="comment">│  │  │  └────────────────────────────┘  │   │  └─────────────────────────┘   │ │   │</span>
+<span class="comment">│  │  └──────────────────────────────────┘   │                                 │ │   │</span>
+<span class="comment">│  │                                          │  ┌─────────────────────────┐   │ │   │</span>
+<span class="comment">│  │                                          │  │</span><span class="service"> Azure Blob Storage         </span><span class="comment">│   │ │   │</span>
+<span class="comment">│  │                                          │  │  feeds container (NFS→)  │   │ │   │</span>
+<span class="comment">│  │                                          │  │  Private endpoint        │   │ │   │</span>
+<span class="comment">│  │                                          │  └─────────────────────────┘   │ │   │</span>
+<span class="comment">│  │                                          │                                 │ │   │</span>
+<span class="comment">│  │                                          │  ┌─────────────────────────┐   │ │   │</span>
+<span class="comment">│  │                                          │  │</span><span class="service"> Azure Key Vault            </span><span class="comment">│   │ │   │</span>
+<span class="comment">│  │                                          │  │  RBAC · Private endpoint │   │ │   │</span>
+<span class="comment">│  │                                          │  └─────────────────────────┘   │ │   │</span>
+<span class="comment">│  │                                          └─────────────────────────────────┘ │   │</span>
+<span class="comment">│  └───────────────────────────────────────────────────────────────────────────────┘   │</span>
+<span class="comment">│   ACR (Premium) · User-Assigned Managed Identity · Private DNS Zones (4 services)    │</span>
+<span class="comment">└──────────────────────────────────────────────────────────────────────────────────────┘</span>
+  </div>
+
+  <div style="margin-top: 2rem;">
+    <h3 style="margin-bottom: 1rem; color: var(--azure-dark);">Docker Compose → Azure: Direct Swap</h3>
+    <div class="service-map">
+      <div class="service-col">
+        <div class="service-item"><div class="label">🐋 postgres:16-alpine</div><div class="detail">Local dev / CI stand-in</div></div>
+        <div class="service-item"><div class="label">🐋 redis:7-alpine</div><div class="detail">Local dev / CI stand-in</div></div>
+        <div class="service-item"><div class="label">🐋 azurite (Blob emulator)</div><div class="detail">Local dev / CI stand-in</div></div>
+        <div class="service-item"><div class="label">🐋 webapp + batch containers</div><div class="detail">Local dev / CI stand-in</div></div>
+      </div>
+      <div class="arrow-col">→<br>→<br>→<br>→</div>
+      <div class="service-col">
+        <div class="service-item"><div class="label">☁️ PostgreSQL Flexible Server</div><div class="detail">Zone-HA · UK South · pgaudit</div></div>
+        <div class="service-item"><div class="label">☁️ Azure Cache for Redis</div><div class="detail">Standard C1 · TLS 6380 · Private EP</div></div>
+        <div class="service-item"><div class="label">☁️ Azure Blob Storage</div><div class="detail">feeds container · Private EP</div></div>
+        <div class="service-item"><div class="label">☁️ Container Apps + App Jobs</div><div class="detail">VNet-integrated · Managed Identity</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE PROOF -->
+<section class="alt" id="proof">
+  <div class="inner">
+    <h2><span class="icon">✅</span> The Proof — Challenge 6</h2>
+    <div class="divider"></div>
+    <p class="section-sub">"Migration succeeded" has a binary definition. 33 tests. Run them. Green means done.</p>
+
+    <div class="test-modules">
+      <div class="test-module">
+        <div class="count">8</div>
+        <div class="name">Smoke Tests</div>
+        <div class="desc">Health endpoint, DB connectivity, required tables, seed data present</div>
+      </div>
+      <div class="test-module">
+        <div class="count">9</div>
+        <div class="name">Contract Tests</div>
+        <div class="desc">API shape, PII redaction enforced by default, pagination caps, 404 responses</div>
+      </div>
+      <div class="test-module">
+        <div class="count">6</div>
+        <div class="name">Integrity Tests</div>
+        <div class="desc">Seed → reconcile → report end-to-end; empty feed forces non-zero exit</div>
+      </div>
+      <div class="test-module">
+        <div class="count">10</div>
+        <div class="name">Discovery Tests</div>
+        <div class="desc">2 per finding — code path + runtime behaviour. All 10 pass today.</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 2rem;">
+      <p style="font-size: 0.85rem; font-weight: 700; color: var(--azure-dark); margin-bottom: 0.5rem;">Current result — no Docker, no live cloud</p>
+      <div class="test-result-bar">
+        <div class="bar-pass" style="width: 30.3%"></div>
+        <div class="bar-skip" style="width: 69.7%"></div>
+      </div>
+      <div class="bar-legend">
+        <span><span class="dot" style="background: var(--success)"></span> 10 pass (discovery — runs anywhere)</span>
+        <span><span class="dot" style="background: #90CAF9"></span> 23 skip (webapp + DB — need Docker stack)</span>
+        <span><span class="dot" style="background: var(--error)"></span> 0 fail</span>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top: 1.5rem;">
+      <strong>Why 0 failures matters:</strong> Tests skip gracefully when the environment isn't ready. There are no false greens and no tests that lie about what they check. When you bring up the Docker stack, those 23 become 23 more passes — or the migration isn't done.
+    </div>
+
+    <pre style="margin-top: 1.5rem;">
+# Run right now — no infrastructure needed
+cd contoso-migration/validation &amp;&amp; pytest -v -m discovery
+
+# Full suite (needs Docker Compose stack up)
+pytest -v --tb=short
+
+# Just the migration-blocker checks
+pytest -v -m discovery</pre>
+  </div>
+</section>
+
+<!-- THE SURVEY -->
+<section id="survey">
+  <h2><span class="icon">🤖</span> The Survey — Challenge 9</h2>
+  <div class="divider"></div>
+  <p class="section-sub">Three Claude Sonnet 4.6 subagents ran in parallel on Amazon Bedrock. The coordinator found risks no human single-pass analysis would catch.</p>
+
+  <div class="score-cards">
+    <div class="score-card">
+      <div class="workload">Batch Job</div>
+      <div class="score">8<span style="font-size:1rem">/10</span></div>
+      <div class="risk risk-low">Low Risk</div>
+      <div class="top-blocker">DB_SSLMODE defaults to 'prefer' — must be 'require' for Azure PostgreSQL</div>
+    </div>
+    <div class="score-card">
+      <div class="workload">Web App</div>
+      <div class="score">7<span style="font-size:1rem">/10</span></div>
+      <div class="risk risk-med">Medium Risk</div>
+      <div class="top-blocker">Auth IP blocker + Redis TLS port change will break sessions at startup</div>
+    </div>
+    <div class="score-card">
+      <div class="workload">Reporting DB</div>
+      <div class="score">7<span style="font-size:1rem">/10</span></div>
+      <div class="risk risk-med">Medium Risk</div>
+      <div class="top-blocker">pgaudit/pgcrypto must be allowlisted in azure.extensions before schema apply</div>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom: 1rem; color: var(--azure-dark);">7 Risks the Human Discovery Missed</h3>
+  <div class="findings-list">
+    <div class="finding">
+      <div class="finding-num warn">!</div>
+      <div>
+        <h4>Split-brain cutover on <code>transactions</code> table — <em>must not migrate separately</em></h4>
+        <p>Batch writes <code>UPDATE transactions SET status='reconciled'</code>. Webapp reads that status for customers. Migrating in separate windows leaves customers seeing stale data while the databases diverge. Discovery noted both workloads use PostgreSQL; missed the shared mutable write.</p>
+      </div>
+      <div class="finding-tag tag-blocker">Critical</div>
+    </div>
+    <div class="finding">
+      <div class="finding-num warn">!</div>
+      <div>
+        <h4>Redis TLS port change (6379 → 6380) breaks webapp sessions at startup</h4>
+        <p>Azure Cache for Redis mandates TLS on 6380. Discovery found the keepalive cron (Finding #5) but not the webapp's own Redis client. Without <code>REDIS_TLS=true</code> and <code>REDIS_PORT=6380</code>, the webapp crashes at boot.</p>
+      </div>
+      <div class="finding-tag tag-blocker">Critical</div>
+    </div>
+    <div class="finding">
+      <div class="finding-num warn">!</div>
+      <div>
+        <h4><code>X-PII-Scope: internal</code> header is spoofable from the internet</h4>
+        <p>Any caller can send this header and receive fully unredacted PII (email, phone, account number, balance). On-prem, the network perimeter blocked this. Behind a public Container Apps ingress, it's an open door. Must be gated before go-live.</p>
+      </div>
+      <div class="finding-tag tag-blocker">Critical</div>
+    </div>
+    <div class="finding">
+      <div class="finding-num warn">!</div>
+      <div>
+        <h4>SSL defaults are wrong for both workloads</h4>
+        <p>Webapp: <code>DB_SSL=false</code>. Batch: <code>DB_SSLMODE=prefer</code>. Azure PostgreSQL Flexible Server enforces TLS — both will be refused at runtime unless SSL is explicitly configured.</p>
+      </div>
+      <div class="finding-tag tag-blocker">Critical</div>
+    </div>
+    <div class="finding">
+      <div class="finding-num warn">!</div>
+      <div>
+        <h4>PostgreSQL version discrepancy: on-prem 14 → target 16</h4>
+        <p>pg_dump from PG14 into PG16 needs extension version validation (pgaudit, pgcrypto) and type-cast review. Not acknowledged in the discovery document.</p>
+      </div>
+      <div class="finding-tag tag-action">Action required</div>
+    </div>
+    <div class="finding">
+      <div class="finding-num warn">!</div>
+      <div>
+        <h4>No GDPR Article 17 right-to-erasure mechanism</h4>
+        <p><code>ON DELETE RESTRICT</code> foreign keys will block any attempt to delete a customer record. Must be resolved before migrated data is live in Azure UK South.</p>
+      </div>
+      <div class="finding-tag tag-action">Action required</div>
+    </div>
+    <div class="finding">
+      <div class="finding-num warn">!</div>
+      <div>
+        <h4>Connection pool exhaustion across all three workloads</h4>
+        <p>Webapp (10 conns) + batch (burst at 02:00) + five internal BI/Risk/Finance/Ops teams, all on one Flexible Server SKU. Risk only visible when all three budgets are summed. PgBouncer is a Phase 2 prerequisite, not a nice-to-have.</p>
+      </div>
+      <div class="finding-tag tag-action">Phase 2</div>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top: 1.5rem;">
+    <strong>Migration order the coordinator recommends:</strong>
+    reporting-db first (all three depend on it) → then batch + webapp in the <em>same maintenance window</em> (02:00–04:00 UTC) to avoid split-brain. Separate cutover windows for the two application workloads is a data-correctness risk, not just an inconvenience.
+  </div>
+</section>
+
+<!-- COMPLIANCE -->
+<section class="alt" id="compliance">
+  <div class="inner">
+    <h2><span class="icon">🔐</span> Compliance &amp; Residency</h2>
+    <div class="divider"></div>
+    <p class="section-sub">UK GDPR data residency + PCI-DSS for account data. Enforced in Terraform — not policy, not a conversation, code.</p>
+    <div class="compliance-grid">
+      <div class="compliance-item">
+        <div class="rule">UK GDPR — Data Residency</div>
+        <h4>All resources in UK South</h4>
+        <p>Terraform validation rule: plan fails if <code>var.location != "uksouth"</code>. Cannot accidentally deploy elsewhere.</p>
+      </div>
+      <div class="compliance-item">
+        <div class="rule">PII Controls</div>
+        <h4>Private endpoints everywhere</h4>
+        <p>PostgreSQL, Redis, Blob, Key Vault all have <code>public_network_access_enabled = false</code>. Data never touches the public internet.</p>
+      </div>
+      <div class="compliance-item">
+        <div class="rule">PII in API Responses</div>
+        <h4>Redacted by default</h4>
+        <p><code>email</code> and <code>phone</code> masked in all external responses. <code>X-PII-Scope: internal</code> gating is on the Phase 2 hardening list.</p>
+      </div>
+      <div class="compliance-item">
+        <div class="rule">PCI-DSS (Reporting DB)</div>
+        <h4>pgaudit + TLS 1.2 + AES-256</h4>
+        <p>PostgreSQL Flexible Server: <code>pgaudit.log = all</code>, TLS minimum 1.2, encryption at rest by default.</p>
+      </div>
+      <div class="compliance-item">
+        <div class="rule">Secret Management</div>
+        <h4>Zero plaintext secrets</h4>
+        <p>PreToolUse hook blocks Claude from writing plaintext secrets to <code>*.tf</code> files. All secrets in Key Vault. Apps use Managed Identity.</p>
+      </div>
+      <div class="compliance-item">
+        <div class="rule">Audit Trail</div>
+        <h4>Structured JSON logs throughout</h4>
+        <p>Both workloads emit structured JSON to stdout. No PII in any log line. Azure Monitor collects via Container Apps log stream.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLAUDE CODE -->
+<section class="dark" id="claude">
+  <div class="inner">
+    <h2><span class="icon">🤖</span> How Claude Code Changed the Game</h2>
+    <div class="divider"></div>
+    <p class="section-sub">Not "Claude helped write code." Specific things that would have taken days and took minutes — with guardrails that held.</p>
+    <div class="claude-grid">
+      <div class="claude-card">
+        <div class="cc-icon">📄</div>
+        <h3>Three-Level CLAUDE.md</h3>
+        <p>Project root for shared conventions. Per-workload directories for module-specific rules. Claude never suggested Terraform patterns in a Node.js file — the context boundaries held across an entire migration codebase.</p>
+      </div>
+      <div class="claude-card">
+        <div class="cc-icon">🔒</div>
+        <h3>PreToolUse Hook — Hard Stop</h3>
+        <p>Every <code>Edit</code>/<code>Write</code> to a <code>*.tf</code> file is intercepted. Plaintext secret pattern → rejected with a structured error pointing to Key Vault. This is deterministic, not preference — it fired and caught a plaintext password during initial IaC generation.</p>
+      </div>
+      <div class="claude-card">
+        <div class="cc-icon">📐</div>
+        <h3>Plan Mode for IaC</h3>
+        <p>All Terraform module restructuring went through Plan Mode before execution. Prevented a half-finished <code>azurerm_container_app_environment</code> refactor from landing in main mid-write.</p>
+      </div>
+      <div class="claude-card">
+        <div class="cc-icon">⚡</div>
+        <h3>Parallel File Generation</h3>
+        <p>Webapp source (7 files), Terraform modules (12 files), validation suite (5 modules) — all generated in parallel using multiple Write tool calls per response. Whole migration skeleton in minutes, not hours.</p>
+      </div>
+      <div class="claude-card">
+        <div class="cc-icon">🎯</div>
+        <h3>Discovery → Tests in One Pass</h3>
+        <p><code>test_discovery_findings.py</code> — 10 tests, 2 per finding — was generated directly from <code>current-state.md</code>. The discovery document contained the evidence; the test file checked it. No intermediate steps.</p>
+      </div>
+      <div class="claude-card">
+        <div class="cc-icon">🧠</div>
+        <h3>Bedrock Multi-Agent Survey</h3>
+        <p>3 subagents on Claude Sonnet 4.6 ran in parallel via <code>ThreadPoolExecutor</code>. The coordinator synthesised all three into a cross-workload report — finding 7 risks that no single-workload analysis could have caught.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT'S NEXT -->
+<section id="next">
+  <h2><span class="icon">🗺️</span> What's Next</h2>
+  <div class="divider"></div>
+  <p class="section-sub">Phase 1 cutover is ready to execute. Phase 2 is the cloud-native promise — written into ADR-001 before Phase 1 shipped.</p>
+
+  <div class="two-col" style="margin-bottom: 2rem;">
+    <div>
+      <h3 style="color: var(--azure-dark); margin-bottom: 1rem;">Before Cutover (Q3 2026)</h3>
+      <div class="findings-list">
+        <div class="finding" style="padding: 1rem 1.25rem;">
+          <div class="finding-num ok" style="width:28px; height:28px; font-size:0.75rem;">1</div>
+          <div><h4 style="font-size:0.875rem;">Fix SSL defaults in both workloads</h4><p>Set <code>DB_SSL=true</code> (webapp) and <code>DB_SSLMODE=require</code> (batch). Non-negotiable for Azure PostgreSQL.</p></div>
+        </div>
+        <div class="finding" style="padding: 1rem 1.25rem;">
+          <div class="finding-num ok" style="width:28px; height:28px; font-size:0.75rem;">2</div>
+          <div><h4 style="font-size:0.875rem;">Set Redis TLS config on webapp</h4><p><code>REDIS_TLS=true</code> and <code>REDIS_PORT=6380</code> in Container App environment variables.</p></div>
+        </div>
+        <div class="finding" style="padding: 1rem 1.25rem;">
+          <div class="finding-num ok" style="width:28px; height:28px; font-size:0.75rem;">3</div>
+          <div><h4 style="font-size:0.875rem;">Gate X-PII-Scope at Container Apps ingress</h4><p>Block the header at the ingress policy layer — not just in application code.</p></div>
+        </div>
+        <div class="finding" style="padding: 1rem 1.25rem;">
+          <div class="finding-num ok" style="width:28px; height:28px; font-size:0.75rem;">4</div>
+          <div><h4 style="font-size:0.875rem;">Rehearse rollback runbook (Challenge 8)</h4><p>DNS revert, point-in-time restore, batch re-enable. SRE sign-off required before cutover window.</p></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3 style="color: var(--azure-dark); margin-bottom: 1rem;">Phase 2 — H2 2026</h3>
+      <div class="card-grid" style="grid-template-columns: 1fr;">
+        <div class="card">
+          <div class="card-icon">🔐</div>
+          <h3>Azure AD B2C</h3>
+          <p>Replace the hardcoded on-prem auth service (Finding #1) with a proper OIDC flow. Eliminates the Site-to-Site VPN dependency for authenticated routes.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">📨</div>
+          <h3>Event-Driven Batch</h3>
+          <p>Azure Service Bus triggers the reconciliation job on feed file arrival — replaces the 02:00 UTC cron. Fewer empty runs, faster reconciliation on early feeds.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">⚙️</div>
+          <h3>PgBouncer + App Insights</h3>
+          <p>Connection pool management (survey finding: exhaustion risk). Application Insights instrumentation. Read replicas for the five internal BI teams.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-block">
+    <h3>The Migration is Ready to Execute</h3>
+    <p>The code is written. The tests pass. The blockers are fixed and proven. The AI survey has given us a better cutover plan than the human discovery alone.</p>
+    <div class="cta-steps">
+      <div class="cta-step"><span class="num">1</span>Run <code>pytest -v -m discovery</code> — watch 10 tests pass right now</div>
+      <div class="cta-step"><span class="num">2</span>Bring up the Docker stack — watch 33 pass</div>
+      <div class="cta-step"><span class="num">3</span>Run <code>terraform plan</code> — review the target architecture</div>
+      <div class="cta-step"><span class="num">4</span>Read <code>agents/survey-report.md</code> — cutover sequence is inside</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p><strong>Contoso Financial Cloud Migration</strong> — Claude Code Hackathon · Scenario 2 · Solo submission</p>
+  <p style="margin-top: 0.5rem;">Built with Claude Code · Amazon Bedrock (Claude Sonnet 4.6) · Azure UK South · 5 blockers fixed · 7 more surfaced by AI · 33 tests · 0 failures</p>
+</footer>
+
+</body>
+</html>

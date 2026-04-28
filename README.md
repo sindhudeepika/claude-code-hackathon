@@ -1,173 +1,111 @@
-# Claude Code Hackathon
-
-## The Point
-
-This is a hack. You get a team, a scenario, and Claude Code. The scenarios are enterprise-flavored briefs: a monolith nobody understands, a migration nobody agrees on, seven systems that can't agree on what a customer is. Real problems, compressed.
-
-There's no prescribed path. Each scenario sketches a handful of challenges worth working toward. How you get there, what stack you pick, what you skip, what you invent on top is up to you. We care about ambition and judgment, not box-checking.
-
----
-
-## The Setup
-
-Pick one scenario. Work with your team. Get as far as you can.
-
-Each scenario sketches a handful of challenges. You probably won't do them all, and that's the point. **Depth beats breadth.** Pick the ones that interest you, work in parallel where you can, and let Claude help you coordinate.
-
----
-
-## How Your Team Works
-
-The scenarios span the SDLC, so there's meaningful work for PM, architect, dev, test, and platform. You won't have one of each, and that's fine. **Play every role, regardless of your day job.** Claude Code doesn't care what your title is, and a lot of what makes the hack interesting is watching the tool perform in parts of the work you don't normally touch.
-
-Divide the challenges up early. Share a running `CLAUDE.md` so everyone teaches the tool the same conventions. Commit often. The commit history is part of the submission and part of how the judges read the journey.
-
----
-
-## The Rules
-
-1. **Tech stack is yours to choose.** One exception: Scenario 5 requires the **Claude Agent SDK**. Use Claude to help you learn it, or to migrate if you're coming from another framework.
-2. **You may need to build starter code, data, or documents.** If the scenario says "a 12-year-old monolith exists," you generate it. That's part of the job. Some scenarios offer optional starter repos. Use them or don't.
-3. **Play every role.** Your team needs a PM, architect, developer, tester, data engineer, and infra engineer whether you staffed for it or not.
-4. **Commit history is evidence.** We want to see the journey, not just the destination.
-5. **`CLAUDE.md` is your friend.** Teach it your conventions early.
-6. **Document your work.** Your repo must include a `README.md` (template below) explaining what you built and what you'd do next.
-7. **Build a presentation.** Use Claude Code to generate an HTML presentation you *could* deliver if you win the judging. It lives in your repo whether you present or not.
-8. **Claude will judge.** At the end, Claude evaluates submissions. A handful of teams present live.
-
----
-
-## The Scenarios
-
-| \# | Scenario | One-liner |
-| :---- | :---- | :---- |
-| 1 | **[Code Modernization](01-code-modernization.md)** | A monolith nobody understands. The board wants it "modernized." |
-| 2 | **[Cloud Migration](02-cloud-migration.md)** | On-prem to cloud. The CFO and CTO disagree on how. |
-| 3 | **[Data Engineering](03-data-engineering.md)** | Seven systems. Zero agreement on what a "customer" is. |
-| 4 | **[Data Analytics](04-data-analytics.md)** | 40 dashboards. One metric. Four different answers. |
-| 5 | **[Agentic Solution](05-agentic-solution.md)** (Claude Agent SDK) | 200 requests a day, triaged by hand. Build the agent. |
-
----
-
-## Techniques to Reach For
-
-These are the patterns the Claude Code Architecture certification tests on. No scenario requires them, and no challenge dictates which to use. They're here because a lot of teams also want the hack to double as cert practice. Pick two or three you want to get reps on, and reach for them inside whichever challenges you pursue.
-
-**Agentic Architecture**
-
-- Coordinator plus specialist subagents via the Task tool, with context passed *explicitly* in each call (Task subagents don't inherit coordinator context).
-- Stop conditions that are real signals, not "parse the text" or "iteration cap."
-- `fork_session` to try two paths on the same input and compare.
-
-**Tool Design & MCP**
-
-- Tool descriptions that say what the tool *does* and what it *does not*. Input formats, edge cases, example queries.
-- Structured error responses (`isError: true` with a reason code and guidance) so the agent can recover gracefully.
-- Keep each specialist's tool count small. Reliability tends to drop once an agent has more than a handful.
-- An MCP server over whatever system you built, so a fresh Claude session picks the right tool on the first try.
-
-**Claude Code Config**
-
-- Three-level `CLAUDE.md`: user (personal preferences), project (shared, in VCS), directory (per-module specifics).
-- Custom slash commands *and* skills, used distinctly. A command runs a playbook; a skill captures reusable guidance.
-- Plan Mode for anything reversible-dangerous; direct execution for the safe paths. Defend the default.
-- Non-interactive Claude Code in CI, with scoped tools and no write access to production paths.
-
-**Prompt Engineering**
-
-- Explicit criteria in place of vague modifiers. "Material," "significant," and "recent" are usually a signal that the definition needs sharper thresholds.
-- Few-shot examples with a negative case and a boundary case. Two sharp examples outperform eight fuzzy ones.
-- `tool_use` with a JSON Schema for anything that must parse. Don't prompt-for-JSON.
-- Validation-retry loop: structured validator checks the output, errors are fed back, Claude retries up to N times. Log retry count and error type.
-
-**Context Management**
-
-- Hooks for deterministic guardrails (`PreToolUse` to block, `PostToolUse` to redact). Prompts for probabilistic preferences. An ADR on why each is which is worth writing; the distinction shows up repeatedly on the exam.
-- Escalation rules that are category plus confidence plus impact, not "when the agent isn't sure."
-- Stratified sampling and field-level confidence when humans review.
-
----
-
-## The Judging
-
-Claude does the first pass. Top teams present live.
-
-**What definitely gets read:**
-
-1. Your `README.md`
-2. Your `presentation.html`
-3. Your `CLAUDE.md`
-
-These are your pitch. Don't leave them to the end. If Claude only sees those three files, it should still understand what you built, why it matters, how far you got, and how you taught the tool to work your way. We may go deeper into the repo, we may not. Assume those three carry the weight.
-
-**What we're looking for** (final categories will be a surprise!, but think along these lines):
-
-- **Most production-ready.** Could hand it to an ops team Monday.
-- **Best architecture thinking.** ADRs, diagrams, decisions someone will thank you for later.
-- **Best testing.** Not coverage. Adversarial thinking, edge cases, evals.
-- **Best product work.** Stories that are actually stories. Docs that persuade.
-- **Most inventive Claude Code use.** Subagents, hooks, skills, something we didn't expect.
-- **Wildcards:** best CI/CD, best legacy archaeology, best "what if this goes wrong" thinking, furthest through the challenges with quality intact, team that questioned a scenario requirement and was *right*.
-
----
-
-## Submission
-
-You need three files:
-
-1. **`README.md`** tells the story. Use the template below.
-2. **`CLAUDE.md`** so we can see how you taught Claude Code to work your way.
-3. **`presentation.html`**, your HTML deck built with Claude Code, ready to present if called.
-
-**Preferred:** put the three files in a folder named for your table and team (for example `Table1_SonnetSlayers/`) and upload the folder to the link provided at your session.
-
-**Alternative:** if a folder upload isn't supported, zip the three files into an archive with the same naming convention (for example `Table1_SonnetSlayers.zip`) and upload that instead.
-
-Either way, **one submission per team**.
-
-**NO CLIENT OR INTERNAL DATA.** Anything in the submission must be safe to share.
-
----
-
-## README Template
-
-Copy this into your repo's `README.md` and fill it in as you go, not at the end.
-
-```
-# Team <name>
+# Team SonnetSlayers — Solo
 
 ## Participants
-- Name (role(s) played today)
-- Name (role(s) played today)
-- Name (role(s) played today)
+- s.d.subramanian (PM, Architect, Developer, Tester, Platform Engineer)
 
 ## Scenario
-Scenario <#>: <title>
+Scenario 2: Cloud Migration — *"The Lift, the Shift, and the 4am Call"*
+
+---
 
 ## What We Built
-A couple of paragraphs. What exists in this repo that didn't exist when you
-started. What runs, what's scaffolding, what's faked.
+
+Contoso Financial runs three on-prem workloads that need to move to Azure UK South: a customer-facing web portal (Node.js/Express), a nightly batch reconciliation job (Python), and a shared reporting database (PostgreSQL). This repo contains everything needed to prove the migration works before anyone touches production.
+
+The migration strategy is **lift-and-shift first, optimise second**: containerise the workloads as-is, deploy to Azure equivalents (Container Apps, PostgreSQL Flexible Server, Azure Batch), and defer cloud-native re-architecture to Phase 2. This resolves the CFO/CTO deadlock — the CFO gets the data-centre cost off the books by Q3, and cloud-native optimisation goes on the H2 roadmap. The decision is fully argued in [ADR-001](contoso-migration/decisions/ADR-001-migration-strategy.md).
+
+The repo includes:
+- **The Memo** — a one-page migration decision document with explicit risk ownership
+- **The Container** — a fully containerised web app with multi-stage Dockerfile, non-root user, health check, and a `docker compose` stack where every service is named for its Azure equivalent
+- **The Proof** — a pytest validation suite (smoke, contract, data-integrity, and discovery-finding tests) that defines "migration succeeded" and specifically catches the four on-prem dependencies that would cause silent failures in Azure
+- **Terraform IaC** — the full target architecture in Azure UK South (Container Apps, PostgreSQL Flexible Server, Redis, Blob Storage, Key Vault, private endpoints for PII residency)
+- **Discovery** — documented on-prem surprises: a hardcoded auth-service IP, a local log file, an NFS-mounted feed directory, a keepalive cron hitting a hardcoded Redis IP, and a plaintext DB password in a config file
+
+---
 
 ## Challenges Attempted
+
 | # | Challenge | Status | Notes |
 |---|---|---|---|
-| 1 | The <name> | done / partial / skipped | |
-| 2 | | | |
+| 1 | The Memo | done | [ADR-001](contoso-migration/decisions/ADR-001-migration-strategy.md) — lift-and-shift decision with risk register |
+| 2 | The Discovery | done | [current-state.md](contoso-migration/discovery/current-state.md) — five on-prem dependencies surfaced |
+| 3 | The Options | done | [ADR-002](contoso-migration/decisions/ADR-002-target-architecture.md) — Azure service selection with scored alternatives |
+| 4 | The Container | done | Multi-stage Dockerfile, non-root user, `/health` endpoint, full `docker compose` stack |
+| 5 | The Foundation | partial | Terraform modules for all four workload areas; not deployed to live cloud |
+| 6 | The Proof | done | 5 test modules, including one module per discovery finding |
+| 7 | The Scorecard | skipped | Would add IaC golden-set eval in Phase 2 |
+| 8 | The Undo | skipped | Rollback runbook is outlined in ADR-001 but not fully rehearsed |
+| 9 | The Survey | done | Coordinator + 3 parallel Bedrock subagents; see [survey-report.md](contoso-migration/agents/survey-report.md) |
+
+---
 
 ## Key Decisions
-Biggest calls you made and why. Link into `/decisions` for the full ADRs.
+
+**1. Lift-and-shift first** — The CTO wants cloud-native; the CFO wants the bill gone. Both are right but on different timescales. Lift-and-shift ships by Q3 at lower risk; cloud-native optimisation (event-driven batch, read replicas, connection pooling) is Phase 2. Full argument in [ADR-001](contoso-migration/decisions/ADR-001-migration-strategy.md).
+
+**2. Azure Container Apps over AKS** — AKS is the right answer if we're running 30 microservices. We have one monolith and two simple jobs. Container Apps gives us scale-to-zero, managed ingress, and no Kubernetes control-plane tax. See [ADR-002](contoso-migration/decisions/ADR-002-target-architecture.md).
+
+**3. Private endpoints everywhere** — PII (customer names, account numbers, sort codes) must stay in UK South. Private endpoints on PostgreSQL, Redis, and Blob Storage ensure traffic never transits the public internet. This is enforced in Terraform, not just in policy — so it can't be accidentally disabled by a config change.
+
+**4. PreToolUse hook for secret detection** — A deterministic hook blocks any Claude-generated edit that writes a plaintext secret into a `.tf` file. This is a hard stop, not a prompt preference, because "prefer Key Vault" is not strong enough for PCI-scoped infrastructure. The reasoning is in [CLAUDE.md](CLAUDE.md).
+
+**5. Managed Identity for all app-to-service auth** — No passwords in environment variables or Key Vault secrets for app-to-DB or app-to-Redis auth in the Azure target. On-prem used a plaintext password in `config.ini`; that pattern stops here.
+
+---
 
 ## How to Run It
-Exact commands. Assume the reader has Docker and nothing else.
 
-## If We Had More Time
-What you'd tackle next, in priority order. Be honest about what's held
-together with tape.
+**Prerequisites:** Docker Desktop with Docker Compose v2, Python 3.11+, Node.js 20+
 
-## How We Used Claude Code
-What worked. What surprised you. Where it saved the most time.
+```powershell
+# Clone the repo
+git clone <repo-url>
+cd claude-code-hackathon\contoso-migration
+
+# Start all services (postgres=Azure PostgreSQL, redis=Azure Redis, azurite=Azure Blob)
+docker compose up -d
+
+# Verify the web app is healthy (seed data loads automatically on first start)
+curl http://localhost:3000/health
+
+# Run the full validation suite (The Proof)
+cd validation
+pip install -r requirements.txt
+pytest -v --tb=short
+
+# Run only smoke tests
+pytest -v -m smoke
+
+# Run only discovery-finding tests (the "did we fix the migration blockers?" tests)
+pytest -v -m discovery
+
+# Run the batch reconciliation job manually (from contoso-migration/)
+cd ..
+docker compose run --rm --profile batch batch python reconcile.py
 ```
 
 ---
 
-**Pick a scenario. Start building.**
+## If We Had More Time
+
+1. **The Undo (Challenge 8)** — A proper rehearsed rollback runbook, not just the outline in ADR-001. Needs at least one dry-run against the Docker Compose stack with a simulated cutover failure.
+3. **The Scorecard (Challenge 7)** — An eval harness for Claude's IaC output: golden IaC snippets, known-bad patterns (open security groups, over-permissive IAM, missing tags), CI integration.
+4. **Azure AD B2C integration** — Replace the hardcoded on-prem auth service (discovery finding #1) with a proper OIDC flow. Currently the webapp falls back to a passthrough stub in the Docker Compose stack.
+5. **Phase 2 cloud-native optimisation** — PgBouncer for connection pooling, Azure Service Bus replacing the cron trigger for batch, Application Insights instrumentation.
+
+---
+
+## How We Used Claude Code
+
+**What worked best:**
+- Generated the entire legacy codebase (with intentional on-prem flaws) in one pass, then used Claude to document the flaws in `discovery/current-state.md` — the discovery doc wrote itself because the code contained the evidence.
+- Three-level `CLAUDE.md` kept per-workload conventions consistent: the webapp, batch, and infrastructure directories each have their own `CLAUDE.md` with the context that matters for that module. Claude never suggested a Terraform pattern inside a Node.js file.
+- The `PreToolUse` hook caught a plaintext password being written to a Terraform variable during initial IaC generation. Exactly the scenario it was designed for.
+- Plan Mode for the Terraform module structure — writing the module hierarchy in Plan Mode before executing prevented a half-finished `azurerm_container_app_environment` refactor from being committed.
+
+**Where it saved the most time:**
+- The validation suite. Writing `test_discovery_findings.py` — tests that specifically catch the five on-prem dependencies — would have taken half a day manually. Claude wrote the full test file in one shot once the discovery document existed.
+- The presentation. The HTML deck was generated from the ADRs and discovery doc in a single prompt.
+
+**What surprised us:**
+- The hook feedback loop. When the `PreToolUse` hook blocked a secret, Claude didn't just retry the same thing — it immediately switched to `azurerm_key_vault_secret` references and asked whether the Key Vault module should be created first. That's the behaviour you want from a guardrail.
